@@ -11,16 +11,16 @@ export class Song{
     @Prop({required: true})
     artist!: string;
 
-    @Prop({required: true})
+    @Prop()
     album!: string;
 
-    @Prop({required: true})
+    @Prop()
     genre!: string;
 
-    @Prop({required: true})
+    @Prop()
     releasedYear!: number;
 
-    @Prop({required: true})
+    @Prop({default: 0})
     playCount!: number;
 }
 
