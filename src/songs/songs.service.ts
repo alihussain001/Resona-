@@ -1,8 +1,8 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
 import { firstValueFrom } from 'rxjs';
+import { SearchQueryDto } from './DTO/search-query.dto';
 
 @Injectable()
 export class SongsService {
@@ -11,26 +11,29 @@ export class SongsService {
     private readonly configService: ConfigService,
   ) {}
 
-  async searchSong(query: string) {
-    if (!query) {
-      return { message: 'Seacrh query is required' };
-    }
-
+  async searchSongs(dto : SearchQueryDto) {
     const baseUrl = this.configService.get<string>('DEEZER_API_URL');
-    const url = `${baseUrl}/search?q=${query}`
+    const url = `${baseUrl}/search?q=${dto.q}`
 
-    const response = await firstValueFrom(
+    try{
+        const response = await firstValueFrom(
         this.httpService.get(url),
-    );
-
+    )
+    if(!response || !response.data || !response.data.data){
+        throw new ServiceUnavailableException("Music service is temporarily unavailable")
+    }
     const songs = response.data.data;
-
     return songs.map((song: any) => ({
         title: song.title,
-        arist: song.artist.name,
+        artist: song.artist.name,
         album: song.album.name,
         cover: song.album.cover_medium,
         preview: song.preview,
     }))
+    }catch(error){
+        throw new ServiceUnavailableException("Music service is temporarily unavailable")
+    }
   }
+
+
 }
