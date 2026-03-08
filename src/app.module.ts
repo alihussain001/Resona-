@@ -23,4 +23,7 @@ import { SongsModule } from './songs/songs.module';
   controllers: [AppController],
   providers: [AppService],
 })
+
 export class AppModule {}
+
+console.log("MongoDB connected to resona database");

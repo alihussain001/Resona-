@@ -1,4 +1,3 @@
-import { Query } from './../../node_modules/sift/lib/core.d';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -10,12 +9,13 @@ import {
   SaveSearchLogDocument,
 } from './schema/search-log.schema';
 import { Model } from 'mongoose';
+import { log } from 'console';
 
 @Injectable()
 export class SongsService {
   constructor(
     @InjectModel(SaveSearchLog.name)
-    private saveSeacrhLogModel: Model<SaveSearchLogDocument>,
+    private saveSearchLogModel: Model<SaveSearchLogDocument>,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
@@ -32,6 +32,7 @@ export class SongsService {
         );
       }
       const songs = response.data.data;
+       this.saveSearchLog(dto.q, songs.length)
 
       return songs.map((song: any) => ({
         title: song.title,
@@ -44,6 +45,25 @@ export class SongsService {
       throw new ServiceUnavailableException(
         'Music service is temporarily unavailable',
       );
+    }
+  }
+
+  async saveSearchLog(query: string, resultCount: number){
+    try{
+       const updatelog = await this.saveSearchLogModel.findOneAndUpdate(
+        {query: query},
+        {
+            $inc: {count: 1},
+            $set:{ resultCount: resultCount}
+        },
+        {
+            new: true,
+            upsert: true    
+        }
+       );
+         console.log("Search log updated:", updatelog);
+    }catch(error){
+        console.log('Failed to save the search log:', error);
     }
   }
 }

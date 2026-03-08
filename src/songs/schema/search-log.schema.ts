@@ -3,18 +3,14 @@ import { Document } from 'mongoose';
 
 export type SaveSearchLogDocument = SaveSearchLog & Document;
 
-@Schema()
+@Schema({timestamps: true})
 export class SaveSearchLog {
-  @Prop()
+  @Prop({required: true, unique: true})
   query!: string;
   @Prop()
-  totalSearches!: number;
-  @Prop()
-  totalResult!: number;
-  @Prop()
-  lastSearchAt!: Date;
-  @Prop()
   resultCount!: number;
+  @Prop({default: 1})
+  count!: number;
 }
 
 export const SaveSearchLogSchema = SchemaFactory.createForClass(SaveSearchLog);
