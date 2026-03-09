@@ -9,7 +9,6 @@ import {
   SaveSearchLogDocument,
 } from './schema/search-log.schema';
 import { Model } from 'mongoose';
-import { log } from 'console';
 
 @Injectable()
 export class SongsService {
@@ -32,7 +31,9 @@ export class SongsService {
         );
       }
       const songs = response.data.data;
-       this.saveSearchLog(dto.q, songs.length)
+      this.saveSearchLog(dto.q, songs.length);
+      console.log("API Response Songs:", songs);    
+      console.log("Passing resultCount:", songs.length);
 
       return songs.map((song: any) => ({
         title: song.title,
@@ -50,20 +51,20 @@ export class SongsService {
 
   async saveSearchLog(query: string, resultCount: number){
     try{
-       const updatelog = await this.saveSearchLogModel.findOneAndUpdate(
-        {query: query},
-        {
-            $inc: {count: 1},
-            $set:{ resultCount: resultCount}
-        },
-        {
-            new: true,
-            upsert: true    
-        }
-       );
-         console.log("Search log updated:", updatelog);
+        const updatedLog = await this.saveSearchLogModel.findOneAndUpdate(
+            {query: query},
+            {
+                $inc: {count: 1},
+                $set:{resultCount: resultCount}
+            },
+            {
+                new: true,
+                upsert: true,
+            }
+        );
+        console.log("Search log updated:", updatedLog)
     }catch(error){
-        console.log('Failed to save the search log:', error);
+        console.log("Failed to save the search log:", error)
     }
   }
 }

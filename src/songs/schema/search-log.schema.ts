@@ -7,7 +7,7 @@ export type SaveSearchLogDocument = SaveSearchLog & Document;
 export class SaveSearchLog {
   @Prop({required: true, unique: true})
   query!: string;
-  @Prop()
+  @Prop({default: 0})
   resultCount!: number;
   @Prop({default: 1})
   count!: number;
